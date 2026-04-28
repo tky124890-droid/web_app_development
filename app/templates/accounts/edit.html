@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}編輯帳戶 - 個人記帳簿{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h3 class="mb-0"><i class="bi bi-pencil"></i> 編輯帳戶</h3>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('accounts.update', id=account.id) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">帳戶名稱 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required
+                               value="{{ form.get('name') if form else account.name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="initial_balance" class="form-label">初始餘額</label>
+                        <div class="input-group">
+                            <span class="input-group-text">NT$</span>
+                            <input type="number" class="form-control" id="initial_balance" name="initial_balance"
+                                   step="0.01" value="{{ form.get('initial_balance') if form else account.initial_balance }}">
+                        </div>
+                        <div class="form-text">注意：修改初始餘額會影響目前餘額的計算。</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-check-lg"></i> 更新
+                        </button>
+                        <a href="{{ url_for('accounts.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i> 取消
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

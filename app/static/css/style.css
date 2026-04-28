@@ -1,0 +1,14 @@
+/* style.css - 個人記帳簿自訂樣式 */
+
+/* 全域基本設定 */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* 未來可加入更多自訂樣式 */

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}分類管理 - 個人記帳簿{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 新增分類表單 -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> 新增分類</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('categories.create') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">分類名稱 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required
+                               value="{{ form.get('name', '') if form else '' }}"
+                               placeholder="如：餐飲、薪水">
+                    </div>
+                    <div class="mb-3">
+                        <label for="type" class="form-label">類型 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="expense" {% if form and form.get('type') == 'expense' %}selected{% endif %}>支出</option>
+                            <option value="income" {% if form and form.get('type') == 'income' %}selected{% endif %}>收入</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check-lg"></i> 新增
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分類列表 -->
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-tags"></i> 分類列表</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>名稱</th>
+                            <th>類型</th>
+                            <th class="text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories %}
+                        <tr>
+                            <td>{{ cat.name }}</td>
+                            <td>
+                                {% if cat.type == 'income' %}
+                                    <span class="badge bg-success">收入</span>
+                                {% else %}
+                                    <span class="badge bg-danger">支出</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ url_for('categories.edit', id=cat.id) }}" class="btn btn-sm btn-outline-warning" title="編輯">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form action="{{ url_for('categories.delete', id=cat.id) }}" method="POST" class="d-inline"
+                                      onsubmit="return confirm('確定要刪除這個分類嗎？')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="刪除">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">
+                                目前沒有任何分類，請從左側新增。
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}首頁 - 個人記帳簿{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-speedometer2"></i> 儀表板</h1>
+
+<!-- 總覽卡片 -->
+<div class="row g-4 mb-4">
+    <!-- 總餘額 -->
+    <div class="col-md-4">
+        <div class="card text-white bg-primary shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1">總餘額</h6>
+                        <h3 class="mb-0">NT$ {{ "%.2f"|format(total_balance) }}</h3>
+                    </div>
+                    <i class="bi bi-wallet2 fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 當月收入 -->
+    <div class="col-md-4">
+        <div class="card text-white bg-success shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1">{{ current_month }} 收入</h6>
+                        <h3 class="mb-0">NT$ {{ "%.2f"|format(monthly_income) }}</h3>
+                    </div>
+                    <i class="bi bi-arrow-up-circle fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 當月支出 -->
+    <div class="col-md-4">
+        <div class="card text-white bg-danger shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1">{{ current_month }} 支出</h6>
+                        <h3 class="mb-0">NT$ {{ "%.2f"|format(monthly_expense) }}</h3>
+                    </div>
+                    <i class="bi bi-arrow-down-circle fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- 當月支出分類比例 -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> {{ current_month }} 支出分類</h5>
+            </div>
+            <div class="card-body">
+                {% if expense_by_category %}
+                    <canvas id="expenseChart" height="250"></canvas>
+                {% else %}
+                    <p class="text-muted text-center py-4">本月尚無支出紀錄。</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 帳戶餘額 -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-bank"></i> 各帳戶餘額</h5>
+            </div>
+            <div class="card-body">
+                {% if accounts %}
+                    <div class="list-group list-group-flush">
+                        {% for account in accounts %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-credit-card"></i> {{ account.name }}</span>
+                            <span class="badge {% if account.balance >= 0 %}bg-success{% else %}bg-danger{% endif %} fs-6">
+                                NT$ {{ "%.2f"|format(account.balance) }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4">
+                        尚未建立帳戶。
+                        <a href="{{ url_for('accounts.index') }}">前往建立</a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 快速操作 -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-4">
+                <a href="{{ url_for('transactions.new') }}" class="btn btn-primary btn-lg me-2">
+                    <i class="bi bi-plus-circle"></i> 新增收支
+                </a>
+                <a href="{{ url_for('transactions.index') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-list-ul"></i> 查看紀錄
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if expense_by_category %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    const labels = {{ expense_by_category.keys()|list|tojson }};
+    const data = {{ expense_by_category.values()|list|tojson }};
+    const colors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+        '#FF9F40', '#C9CBCF', '#7BC8A4', '#E7E9ED', '#F7464A'
+    ];
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}
